@@ -152,3 +152,11 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
+@app.route("/debug-chat", methods=["GET"])
+def debug_chat():
+    import os
+    return jsonify({
+        "telegram_chat_id": os.getenv("TELEGRAM_CHAT_ID"),
+        "telegram_token_set": bool(os.getenv("TELEGRAM_TOKEN"))
+    })

@@ -92,20 +92,23 @@ def publish_instagram(image_url, caption, hashtags):
     print(f"Instagram publish yanıtı: {r2.status_code} - {r2.text}")
     return r2.json()
 
-@app.route("/generate", methods=["POST"])
-def generate():
+def generate_and_send():
     from datetime import date
     trend = TRENDS[date.today().weekday() % len(TRENDS)]
     content_id = str(uuid.uuid4())[:8]
+    image_prompt = call_claude(f"Write gpt-image-1 prompt for luxury minimalist jewelry photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Rules: product photography, clean white marble background, natural light, no hands, no people. Under 80 words, return only the prompt.")
+    image_url = generate_image(image_prompt)
+    content = generate_caption(trend)
+    pending = load_pending()
+    pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
+    save_pending(pending)
+    send_telegram(content_id, image_url, content["caption"], content["hashtags"])
+
+@app.route("/generate", methods=["POST"])
+def generate():
     try:
-        image_prompt = call_claude(f"Write gpt-image-1 prompt for luxury minimalist jewelry photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Rules: product photography, clean white marble background, natural light, no hands, no people. Under 80 words, return only the prompt.")
-        image_url = generate_image(image_prompt)
-        content = generate_caption(trend)
-        pending = load_pending()
-        pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
-        save_pending(pending)
-        tg = send_telegram(content_id, image_url, content["caption"], content["hashtags"])
-        return jsonify({"status": "sent_for_approval", "content_id": content_id, "telegram": tg})
+        generate_and_send()
+        return jsonify({"status": "sent_for_approval"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -129,9 +132,13 @@ def telegram_webhook():
         return jsonify({"status": "published", "result": result})
     elif action == "reject":
         requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery",
-            json={"callback_query_id": callback["id"], "text": "Rejected."})
+            json={"callback_query_id": callback["id"], "text": "Rejected. Generating new one..."})
         pending.pop(content_id, None)
         save_pending(pending)
+        try:
+            generate_and_send()
+        except Exception as e:
+            print(f"Yeni içerik üretme hatası: {e}")
     return jsonify({"ok": True})
 
 @app.route("/health", methods=["GET"])

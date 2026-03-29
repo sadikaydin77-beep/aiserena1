@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PENDING_FILE = "/tmp/pending.json"
+PENDING_FILE = "/data/pending.json"
 
 def load_pending():
     if os.path.exists(PENDING_FILE):

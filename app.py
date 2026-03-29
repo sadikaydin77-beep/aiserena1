@@ -1,4 +1,18 @@
 import os, json, uuid, requests
+import json
+import os
+
+PENDING_FILE = "/tmp/pending.json"
+
+def load_pending():
+    if os.path.exists(PENDING_FILE):
+        with open(PENDING_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_pending(data):
+    with open(PENDING_FILE, "w") as f:
+        json.dump(data, f)
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 load_dotenv()

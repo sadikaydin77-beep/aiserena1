@@ -101,8 +101,8 @@ def generate():
         image_url = generate_image(image_prompt)
         content = generate_caption(trend)
         pending = load_pending()
-pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
-save_pending(pending)
+        pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
+        save_pending(pending)
         tg = send_telegram(content_id, image_url, content["caption"], content["hashtags"])
         return jsonify({"status":"sent_for_approval","content_id":content_id,"telegram":tg})
     except Exception as e:

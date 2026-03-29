@@ -56,13 +56,26 @@ def send_telegram(content_id, image_url, caption, hashtags):
     return r.json()
 def publish_instagram(image_url, caption, hashtags):
     full = f"{caption}\n\n{hashtags}"
+    
     r1 = requests.post(f"https://graph.facebook.com/v19.0/{INSTAGRAM_ACCOUNT_ID}/media",
-        params={"image_url":image_url,"caption":full,"access_token":INSTAGRAM_TOKEN})
+        params={"image_url": image_url, "caption": full, "access_token": INSTAGRAM_TOKEN})
+    
+    # BUNU EKLE ↓
+    print(f"Instagram media yanıtı: {r1.status_code} - {r1.text}")
+    
+    if not r1.text:
+        return {"error": "Instagram boş yanıt döndürdü (media)"}
+    
     cid = r1.json().get("id")
     if not cid:
-        return {"error":r1.json()}
+        return {"error": r1.json()}
+    
     r2 = requests.post(f"https://graph.facebook.com/v19.0/{INSTAGRAM_ACCOUNT_ID}/media_publish",
-        params={"creation_id":cid,"access_token":INSTAGRAM_TOKEN})
+        params={"creation_id": cid, "access_token": INSTAGRAM_TOKEN})
+    
+    # BUNU EKLE ↓
+    print(f"Instagram publish yanıtı: {r2.status_code} - {r2.text}")
+    
     return r2.json()
 @app.route("/generate", methods=["POST"])
 def generate():

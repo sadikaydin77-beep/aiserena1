@@ -23,7 +23,7 @@ INSTAGRAM_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN")
 INSTAGRAM_ACCOUNT_ID = os.getenv("INSTAGRAM_ACCOUNT_ID")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-pending = {}
+pending = load_pending()
 TRENDS = [
     {"keyword": "minimalist gold ring", "style": "minimal", "palette": "warm gold, ivory"},
     {"keyword": "dainty layered necklace", "style": "elegant", "palette": "gold, cream"},
@@ -100,7 +100,9 @@ def generate():
         image_prompt = call_claude(f"Write gpt-image-1 prompt for luxury minimalist jewelry photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Rules: product photography, clean white marble background, natural light, no hands, no people. Under 80 words, return only the prompt.")
         image_url = generate_image(image_prompt)
         content = generate_caption(trend)
-        pending[content_id] = {"image_url":image_url,"caption":content["caption"],"hashtags":content["hashtags"]}
+        pending = load_pending()
+pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
+save_pending(pending)
         tg = send_telegram(content_id, image_url, content["caption"], content["hashtags"])
         return jsonify({"status":"sent_for_approval","content_id":content_id,"telegram":tg})
     except Exception as e:
@@ -113,7 +115,8 @@ def telegram_webhook():
     if ":" not in cb_data:
         return jsonify({"ok":True})
     action, content_id = cb_data.split(":",1)
-    item = pending.get(content_id)
+    pending = load_pending()
+item = pending.get(content_id)
     print(f"ACTION: {action}, CONTENT_ID: {content_id}, ITEM: {item}")
     if action == "approve" and item:
     result = publish_instagram(item["image_url"], item["caption"], item["hashtags"])

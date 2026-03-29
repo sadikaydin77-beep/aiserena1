@@ -100,8 +100,9 @@ def telegram_webhook():
         return jsonify({"ok":True})
     action, content_id = cb_data.split(":",1)
     item = pending.get(content_id)
+    print(f"ACTION: {action}, CONTENT_ID: {content_id}, ITEM: {item}")
     if action == "approve" and item:
-        result = publish_instagram(item["image_url"],item["caption"],item["hashtags"])
+    result = publish_instagram(item["image_url"], item["caption"], item["hashtags"])
         requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/answerCallbackQuery",
             json={"callback_query_id":callback["id"],"text":"Published to Instagram!"})
         pending.pop(content_id,None)

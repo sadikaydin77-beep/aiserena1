@@ -49,7 +49,7 @@ def call_claude(prompt):
 def generate_image(prompt):
     r = requests.post("https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
-        json={"model": "gpt-image-1", "prompt": prompt, "size": "1024x1024", "quality": "high", "n": 1},
+        json={"model": "dall-e-3", "prompt": prompt, "size": "1024x1024", "quality": "standard", "n": 1},
         timeout=120)
     data = r.json()
     if "data" not in data:

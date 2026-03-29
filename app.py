@@ -7,12 +7,14 @@ load_dotenv()
 PENDING_FILE = "/data/pending.json"
 
 def load_pending():
+    os.makedirs("/data", exist_ok=True)
     if os.path.exists(PENDING_FILE):
         with open(PENDING_FILE, "r") as f:
             return json.load(f)
     return {}
 
 def save_pending(data):
+    os.makedirs("/data", exist_ok=True)
     with open(PENDING_FILE, "w") as f:
         json.dump(data, f)
 

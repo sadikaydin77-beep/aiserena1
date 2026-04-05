@@ -1,4 +1,4 @@
-import os, json, uuid, requests, threading
+import os, json, uuid, requests, threading, time
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
@@ -87,6 +87,7 @@ def publish_instagram(image_url, caption, hashtags):
     cid = r1.json().get("id")
     if not cid:
         return {"error": r1.json()}
+    time.sleep(15)
     r2 = requests.post(f"https://graph.facebook.com/v19.0/{INSTAGRAM_ACCOUNT_ID}/media_publish",
         params={"creation_id": cid, "access_token": INSTAGRAM_TOKEN})
     print(f"Instagram publish yanıtı: {r2.status_code} - {r2.text}")
@@ -105,7 +106,6 @@ def generate_and_send():
     send_telegram(content_id, image_url, content["caption"], content["hashtags"])
 
 def schedule_generate():
-    import time
     from datetime import datetime, timezone
     while True:
         now = datetime.now(timezone.utc)

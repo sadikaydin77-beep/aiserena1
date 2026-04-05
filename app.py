@@ -96,8 +96,7 @@ def generate_and_send():
     from datetime import date
     trend = TRENDS[date.today().weekday() % len(TRENDS)]
     content_id = str(uuid.uuid4())[:8]
-    image_prompt = call_claude(f"Write gpt-image-1 prompt for luxury minimalist jewelry photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Rules: product photography, clean white marble background, natural light, no hands, no people. Under 80 words, return only the prompt.")
-    image_url = generate_image(image_prompt)
+    image_prompt = call_claude(f"Write a DALL-E 3 prompt for a luxury jewelry product photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Requirements: ultra-realistic product photography, shot on Canon 5D, 85mm lens, soft natural window light, clean white marble surface, shallow depth of field, professional jewelry photography, no people, no hands, photorealistic, 8K quality. Under 80 words, return only the prompt.")    image_url = generate_image(image_prompt)
     content = generate_caption(trend)
     pending = load_pending()
     pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}

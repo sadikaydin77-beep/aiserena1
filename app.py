@@ -1,4 +1,4 @@
-import os, json, uuid, requests
+import os, json, uuid, requests, threading
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
@@ -103,6 +103,22 @@ def generate_and_send():
     pending[content_id] = {"image_url": image_url, "caption": content["caption"], "hashtags": content["hashtags"]}
     save_pending(pending)
     send_telegram(content_id, image_url, content["caption"], content["hashtags"])
+
+def schedule_generate():
+    import time
+    from datetime import datetime, timezone
+    while True:
+        now = datetime.now(timezone.utc)
+        if now.hour == 13 and now.minute == 0:
+            try:
+                generate_and_send()
+                print("Scheduled generate completed.")
+            except Exception as e:
+                print(f"Scheduled generate error: {e}")
+            time.sleep(61)
+        time.sleep(30)
+
+threading.Thread(target=schedule_generate, daemon=True).start()
 
 @app.route("/generate", methods=["POST"])
 def generate():

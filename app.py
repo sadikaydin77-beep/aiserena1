@@ -27,13 +27,13 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 TRENDS = [
-    {"keyword": "minimalist gold ring", "style": "minimal", "palette": "warm gold, ivory"},
-    {"keyword": "dainty layered necklace", "style": "elegant", "palette": "gold, cream"},
-    {"keyword": "thin stacking rings", "style": "minimal", "palette": "gold, marble"},
-    {"keyword": "delicate chain bracelet", "style": "fine", "palette": "gold, linen"},
-    {"keyword": "simple hoop earrings", "style": "classic", "palette": "gold, white"},
-    {"keyword": "pendant necklace minimal", "style": "modern", "palette": "gold, terracotta"},
-    {"keyword": "fine jewelry everyday", "style": "luxury", "palette": "warm gold, nude"},
+    {"keyword": "single emerald solitaire ring", "style": "luxury", "palette": "deep green emerald, 18k gold"},
+    {"keyword": "single emerald pendant necklace", "style": "elegant", "palette": "vivid green emerald, yellow gold"},
+    {"keyword": "single diamond stud earring", "style": "classic", "palette": "brilliant white diamond, platinum"},
+    {"keyword": "single sapphire cocktail ring", "style": "bold", "palette": "royal blue sapphire, white gold"},
+    {"keyword": "single ruby pendant necklace", "style": "romantic", "palette": "deep red ruby, rose gold"},
+    {"keyword": "single pearl drop earring", "style": "minimal", "palette": "lustrous white pearl, gold"},
+    {"keyword": "single aquamarine bracelet", "style": "delicate", "palette": "light blue aquamarine, silver"},
 ]
 
 def call_claude(prompt):
@@ -49,7 +49,7 @@ def call_claude(prompt):
 def generate_image(prompt):
     r = requests.post("https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
-        json={"model": "dall-e-3", "prompt": prompt, "size": "1024x1024", "quality": "standard", "n": 1},
+        json={"model": "dall-e-3", "prompt": prompt, "size": "1024x1024", "quality": "hd", "n": 1},
         timeout=120)
     data = r.json()
     if "data" not in data:
@@ -96,7 +96,7 @@ def generate_and_send():
     from datetime import date
     trend = TRENDS[date.today().weekday() % len(TRENDS)]
     content_id = str(uuid.uuid4())[:8]
-    image_prompt = call_claude(f"Write a DALL-E 3 prompt for a luxury jewelry product photo. Theme:{trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Requirements: ultra-realistic product photography, shot on Canon 5D, 85mm lens, soft natural window light, clean white marble surface, shallow depth of field, professional jewelry photography, no people, no hands, photorealistic, 8K quality. Under 80 words, return only the prompt.")
+    image_prompt = call_claude(f"Write a DALL-E 3 prompt for a single luxury jewelry piece product photo. Item: {trend['keyword']}. Style:{trend['style']}. Colors:{trend['palette']}. Requirements: ONE single jewelry piece only, ultra-realistic macro product photography, shot on Canon 5D macro lens, soft studio light, clean white marble surface, shallow depth of field, no sets, no multiple pieces, no people, no hands, photorealistic, 8K quality. Under 80 words, return only the prompt.")
     image_url = generate_image(image_prompt)
     content = generate_caption(trend)
     pending = load_pending()
